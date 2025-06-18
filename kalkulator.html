@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>średnia (Online)</title>
+    <style>
+        /* STYLE CSS */
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(to right, #ece9e6, #ffffff);
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            min-height: 100vh;
+            padding: 20px;
+            box-sizing: border-box;
+            color: #333;
+        }
+        .container {
+            background-color: #fff;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.15);
+            width: 100%;
+            max-width: 600px;
+            box-sizing: border-box;
+        }
+        h1 {
+            text-align: center;
+            color: #2c3e50;
+            margin-bottom: 25px;
+            font-size: 2.2em;
+            letter-spacing: 0.5px;
+        }
+        .subject-input {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+            padding: 12px;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            background-color: #fcfcfc;
+            transition: all 0.2s ease-in-out;
+        }
+        .subject-input:focus-within {
+            box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.25);
+            border-color: #007bff;
+        }
+        .subject-input input[type="checkbox"] {
+            margin-right: 15px;
+            transform: scale(1.4);
+            accent-color: #007bff;
+        }
+        .subject-input label {
+            flex-grow: 1;
+            font-size: 1.15em;
+            color: #555;
+            cursor: pointer;
+        }
+        .subject-input input[type="number"] {
+            width: 85px;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            font-size: 1.05em;
+            text-align: center;
+            -moz-appearance: textfield;
+            transition: border-color 0.2s ease;
+        }
+        .subject-input input[type="number"]:focus {
+            border-color: #007bff;
+            outline: none;
+        }
+        .subject-input input[type="number"]::-webkit-outer-spin-button,
+        .subject-input input[type="number"]::-webkit-inner-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+
+        .actions {
+            text-align: center;
+            margin-top: 30px;
+        }
+        button {
+            background-color: #007bff;
+            color: white;
+            padding: 14px 30px;
+            border: none;
+            border-radius: 6px;
+            font-size: 1.2em;
+            cursor: pointer;
+            transition: background-color 0.3s ease, transform 0.1s ease;
+            box-shadow: 0 4px 10px rgba(0, 123, 255, 0.3);
+        }
+        button:hover {
+            background-color: #0056b3;
+            transform: translateY(-2px);
+        }
+        button:active {
+            transform: translateY(0);
+            box-shadow: 0 2px 5px rgba(0, 123, 255, 0.3);
+        }
+        #result {
+            margin-top: 30px;
+            padding: 18px;
+            border: 1px solid #28a745;
+            background-color: #e6ffed;
+            color: #1a7130;
+            border-radius: 8px;
+            font-size: 1.4em;
+            font-weight: bold;
+            text-align: center;
+            display: none;
+            box-shadow: 0 2px 8px rgba(40, 167, 69, 0.2);
+        }
+        #error {
+            margin-top: 20px;
+            padding: 15px;
+            background-color: #ffebe6;
+            color: #d14f4f;
+            border: 1px solid #ffad99;
+            border-radius: 8px;
+            text-align: center;
+            font-size: 1.1em;
+            display: none;
+            box-shadow: 0 2px 8px rgba(255, 99, 71, 0.2);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Kalkulator Średniej Ocen</h1>
+
+        <div id="subjectsContainer">
+            </div>
+
+        <div class="actions">
+            <button onclick="calculateAverage()">Oblicz Średnią</button>
+        </div>
+
+        <div id="result"></div>
+        <div id="error"></div>
+    </div>
+
+    <script>
+        // KOD JAVASCRIPT
+        document.addEventListener('DOMContentLoaded', () => {
+            const subjects = [
+                "Język Polski",
+                "Matematyka",
+                "Język Angielski",
+                "Historia",
+                "Geografia",
+                "Biologia",
+                "Chemia",
+                "Fizyka",
+                "Informatyka",
+                "Wiedza o Społeczeństwie",
+                "Plastyka",
+                "Muzyka",
+                "Wychowanie Fizyczne"
+            ];
+
+            const subjectsContainer = document.getElementById('subjectsContainer');
+
+            subjects.forEach((subjectName, index) => {
+                const subjectDiv = document.createElement('div');
+                subjectDiv.className = 'subject-input';
+
+                const checkbox = document.createElement('input');
+                checkbox.type = 'checkbox';
+                checkbox.id = `subject${index}`;
+                checkbox.value = subjectName;
+
+                const label = document.createElement('label');
+                label.htmlFor = `subject${index}`;
+                label.textContent = subjectName;
+
+                const gradeInput = document.createElement('input');
+                gradeInput.type = 'number';
+                gradeInput.id = `grade${index}`;
+                gradeInput.min = "1";
+                gradeInput.max = "6";
+                gradeInput.step = "0.5";
+                gradeInput.placeholder = "Ocena";
+                gradeInput.disabled = true;
+
+                checkbox.addEventListener('change', () => {
+                    gradeInput.disabled = !checkbox.checked;
+                    if (!checkbox.checked) {
+                        gradeInput.value = '';
+                    }
+                });
+
+                subjectDiv.appendChild(checkbox);
+                subjectDiv.appendChild(label);
+                subjectDiv.appendChild(gradeInput);
+                subjectsContainer.appendChild(subjectDiv);
+            });
+        });
+
+        function calculateAverage() {
+            const selectedGrades = [];
+            const errorDisplay = document.getElementById('error');
+            const resultDisplay = document.getElementById('result');
+
+            errorDisplay.style.display = 'none';
+            resultDisplay.style.display = 'none';
+            resultDisplay.textContent = '';
+
+            const subjectInputs = document.querySelectorAll('.subject-input');
+
+            let hasError = false;
+
+            subjectInputs.forEach((subjectDiv) => {
+                const checkbox = subjectDiv.querySelector('input[type="checkbox"]');
+                const gradeInput = subjectDiv.querySelector('input[type="number"]');
+
+                if (checkbox.checked) {
+                    const grade = parseFloat(gradeInput.value);
+                    if (isNaN(grade) || grade < 1 || grade > 6 || gradeInput.value.trim() === '') {
+                        errorDisplay.textContent = `Błąd: Ocena dla "${checkbox.value}" jest nieprawidłowa lub pusta. Wprowadź liczbę od 1 do 6 (np. 4.5).`;
+                        errorDisplay.style.display = 'block';
+                        hasError = true;
+                        return;
+                    } else {
+                        selectedGrades.push(grade);
+                    }
+                }
+            });
+
+            if (hasError) {
+                return;
+            }
+
+            if (selectedGrades.length === 0) {
+                errorDisplay.textContent = "Proszę zaznaczyć przynajmniej jeden przedmiot i wprowadzić ocenę.";
+                errorDisplay.style.display = 'block';
+                return;
+            }
+
+            const sum = selectedGrades.reduce((acc, current) => acc + current, 0);
+            const average = sum / selectedGrades.length;
+
+            resultDisplay.textContent = `Twoja średnia ocen wynosi: ${average.toFixed(2)}`;
+            resultDisplay.style.display = 'block';
+        }
+    </script>
+</body>
+</html>
